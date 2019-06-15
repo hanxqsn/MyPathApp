@@ -7,13 +7,18 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daimajia.slider.library.Animations.DescriptionAnimation;
 import com.daimajia.slider.library.Indicators.PagerIndicator;
@@ -23,9 +28,12 @@ import com.daimajia.slider.library.SliderTypes.TextSliderView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 
 public class HomeFragment extends Fragment implements ViewPager.OnPageChangeListener{
 
+    private static final String TAG = "HomeFragment";
     private SearchView mSearchView;
     private ViewPager viewPager;
     private int[] imageResIds;
@@ -35,6 +43,8 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     private TextView tv_desc;
     private int previousSelectedPosition = 0;
     boolean isRunning = false;
+    private ListView lvArtical;
+    private List<Artical> articalList = new ArrayList<Artical>();//创建集合保存文章信息
 
     @Override
     public View onCreateView( LayoutInflater inflater,  ViewGroup container,
@@ -57,8 +67,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         // Controller 控制器
         initAdapter();
 
-
-        // 开启轮询
+        // 开启轮播
         new Thread() {
             public void run() {
                 isRunning = true;
@@ -72,7 +81,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            System.out.println("设置当前位置: " + viewPager.getCurrentItem());
+                            //System.out.println("设置当前位置: " + viewPager.getCurrentItem());
                             viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
                         }
                     });
@@ -81,6 +90,44 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
             }
         }.start();
 
+        lvArtical = getActivity().findViewById(R.id.article_listView);  //获得子布局
+        getData();
+        ArticalAdapter articalAdapter = new ArticalAdapter(getActivity(),
+                R.layout.activity_artical_list, articalList);     //关联数据和子布局
+        lvArtical.setAdapter(articalAdapter);          //绑定数据和适配器
+
+        lvArtical.setOnItemClickListener(new AdapterView.OnItemClickListener() { //点击每一行的点击事件
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position,
+                                    long id) {
+                Artical artical=articalList.get(position);     //获取点击的那一行
+                Log.i(TAG, "onItemClick: List"+artical.getAccountName());
+                }
+        });
+
+    }
+
+    private void getData() {
+        int[] avatarImage = { R.drawable.a, R.drawable.b,
+                R.drawable.c, R.drawable.d,
+                R.drawable.e};
+        String[] accountName = { "accountName1", "accountName2", "accountName3",
+                "accountName4", "accountName5"};
+        String[] description={ "description1", "description2", "description3",
+                "description4", "description5"};
+        int[] articalPicId = { R.drawable.a, R.drawable.b,
+                R.drawable.c, R.drawable.d,
+                R.drawable.e};
+        String[] title={ "title1", "title2", "title3",
+                "title4", "title5"};
+        String[] detail={ "detail1", "detail2", "detail3",
+                "detail4", "detail5"};
+
+        for(int i=0;i<avatarImage.length;i++){         //将数据添加到集合中
+            articalList.add(new Artical(avatarImage[i],accountName[i],
+                    description[i],articalPicId[i],title[i],detail[i])); //将图片id和对应的name存储到一起
+        }
     }
 
     @Override
@@ -100,8 +147,8 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     private void initData() {
         // 图片资源id数组
-                imageResIds = new int[]{R.drawable.a,
-                        R.drawable.b, R.drawable.c, R.drawable.d, R.drawable.e};
+        imageResIds = new int[]{R.drawable.a, R.drawable.b,
+                R.drawable.c, R.drawable.d, R.drawable.e};
 
         // 文本描述
         contentDescs = new String[]{
@@ -169,7 +216,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         // 1. 返回要显示的条目内容, 创建条目
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            System.out.println("instantiateItem初始化: " + position);
+            //System.out.println("instantiateItem初始化: " + position);
             // container: 容器: ViewPager
             // position: 当前要显示条目的位置 0 -> 4
 
@@ -187,7 +234,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             // object 要销毁的对象
-            System.out.println("destroyItem销毁: " + position);
+            //System.out.println("destroyItem销毁: " + position);
             container.removeView((View) object);
         }
     }
@@ -201,7 +248,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     @Override
     public void onPageSelected(int position) {
         // 新的条目被选中时调用
-        System.out.println("onPageSelected: " + position);
+        //System.out.println("onPageSelected: " + position);
         int newPosition = position % imageViewList.size();
 
         //设置文本

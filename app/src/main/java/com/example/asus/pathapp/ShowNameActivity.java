@@ -45,6 +45,7 @@ public class ShowNameActivity extends ListActivity implements Runnable{
 
         this.setListAdapter(listItemAdapter);
 
+        //Handler的作用：与其他线程协同工作，接收其他线程的消息并通过接收到的消息更新主UI线程的内容。
         handler = new Handler(){
             @Override
             public void handleMessage(Message msg) {
