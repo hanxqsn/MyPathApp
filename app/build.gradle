@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
+    useLibrary 'org.apache.http.legacy'
+
     defaultConfig {
         applicationId "com.example.asus.pathapp"
         minSdkVersion 24
@@ -18,15 +20,46 @@ android {
     }
 }
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    implementation 'org.jsoup:jsoup:1.11.3'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'com.squareup.picasso:picasso:2.3.2'
-    implementation 'com.nineoldandroids:library:2.4.0'
-    implementation 'com.daimajia.slider:library:1.1.5@aar'
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion '28.0.0'
+            }
+        }
+    }
 }
+
+
+    dependencies {
+        implementation fileTree(dir: 'libs', include: ['*.jar'])
+        implementation 'com.android.support:appcompat-v7:28.0.0'
+        implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+        testImplementation 'junit:junit:4.12'
+        implementation 'org.jsoup:jsoup:1.11.3'
+        androidTestImplementation 'com.android.support.test:runner:1.0.2'
+        androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+        implementation 'com.squareup.picasso:picasso:2.3.2'
+        implementation 'com.nineoldandroids:library:2.4.0'
+        implementation 'com.daimajia.slider:library:1.1.5@aar'
+        //bmob
+        implementation 'cn.bmob.android:bmob-sdk:3.4.7-aar'
+        //bmob-push：Bmob的推送包
+        implementation 'cn.bmob.android:bmob-push:0.8'
+
+        //bmob-im：Bmob的即时通讯包，注意每个版本的im依赖特定版本的bmob-sdk，具体的依赖关系可查看下面注释[3]
+        implementation 'cn.bmob.android:bmob-im:2.0.4'
+        implementation 'cn.bmob.android:androidasync:2.1.6'
+        implementation 'cn.bmob.android:bmob-sdk:3.4.6'
+        //注：别忘记导入3.4.6的相关依赖包[2]
+
+        //bmob-sms ：Bmob单独为短信服务提供的包
+        implementation 'cn.bmob.android:bmob-sms:1.0.1'
+
+        //如果你想应用能够兼容Android6.0，请添加此依赖(org.apache.http.legacy.jar)
+        implementation 'cn.bmob.android:http-legacy:1.0'
+//    implementation 'com.android.support:design:28.0.0'
+
+        implementation 'com.foamtrace:photopicker:1.0'
+    }

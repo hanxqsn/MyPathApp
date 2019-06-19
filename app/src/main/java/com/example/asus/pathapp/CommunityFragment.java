@@ -1,7 +1,10 @@
 package com.example.asus.pathapp;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,15 @@ public class CommunityFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        //找到控件
+        FloatingActionButton addBtn =getView().findViewById(R.id.add_article);
+        //设置监听
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), EditArticleActivity.class));                 }
+        });
+
         lvArtical = getView().findViewById(R.id.article_listView);  //获得子布局
         getData();
         ArticalAdapter articalAdapter = new ArticalAdapter(getActivity(),

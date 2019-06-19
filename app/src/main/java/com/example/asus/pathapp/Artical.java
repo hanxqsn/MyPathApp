@@ -1,6 +1,8 @@
 package com.example.asus.pathapp;
 
-public class Artical {
+import cn.bmob.v3.BmobObject;
+
+public class Artical extends BmobObject {
     private  int avatarId;
     private  String accountName;
     private  String description;

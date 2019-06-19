@@ -10,6 +10,8 @@ import android.util.Log;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import cn.bmob.v3.Bmob;
+
 public class FrameActivity extends FragmentActivity {
 
     private RadioButton rbHome,rbCommunity,rbRunning,rbTeaching,rbSetting;
@@ -23,6 +25,7 @@ public class FrameActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_frame);
+        Bmob.initialize(this, "Your Application ID");
         mFragments = new Fragment[5];
         fragmentManager = getSupportFragmentManager();
         mFragments[0]=fragmentManager.findFragmentById(R.id.home_fragment);
