@@ -44,7 +44,6 @@ public class EditArticleActivity extends AppCompatActivity {
     private static final int REQUEST_PICK = 101; // 需要
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
