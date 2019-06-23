@@ -1,5 +1,7 @@
 package com.example.asus.pathapp;
 
+import android.content.Intent;
+import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -25,7 +27,11 @@ public class FrameActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_frame);
-        Bmob.initialize(this, "Your Application ID");
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
+        Intent intent=getIntent();
+        String from =intent.getStringExtra("telStr");
+
+        Bmob.initialize(this, "1f251cee919fc7a00bc654ae6e566e46");
         mFragments = new Fragment[5];
         fragmentManager = getSupportFragmentManager();
         mFragments[0]=fragmentManager.findFragmentById(R.id.home_fragment);

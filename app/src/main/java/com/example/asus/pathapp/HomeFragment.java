@@ -2,6 +2,9 @@ package com.example.asus.pathapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -26,12 +30,22 @@ import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.datatype.BmobQueryResult;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.DownloadFileListener;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.SQLQueryListener;
 
-public class HomeFragment extends Fragment implements ViewPager.OnPageChangeListener{
+
+public class HomeFragment extends Fragment implements ViewPager.OnPageChangeListener,Runnable{
 
     private static final String TAG = "HomeFragment";
     private SearchView mSearchView;
@@ -45,6 +59,16 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     boolean isRunning = false;
     private ListView lvArtical;
     private List<Artical> articalList = new ArrayList<Artical>();//创建集合保存文章信息
+    String description;
+    String avatarImage ;
+    String username;
+    String mobilePhoneNumber;
+    String[] mobilePhoneNumbers=null;
+    String prePic;
+    String title ;
+    String detail;
+    private Handler handler;
+
 
     @Override
     public View onCreateView( LayoutInflater inflater,  ViewGroup container,
@@ -57,6 +81,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         super.onActivityCreated(savedInstanceState);
         mSearchView = getView().findViewById(R.id.search_home);
         mSearchView.bringToFront();
+        Bmob.initialize(getActivity(), "1f251cee919fc7a00bc654ae6e566e46");
 
         // 初始化布局 View视图
         initViews();
@@ -90,51 +115,105 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
             }
         }.start();
 
-        lvArtical = getActivity().findViewById(R.id.article_listView);  //获得子布局
-        getData();
-        ArticalAdapter articalAdapter = new ArticalAdapter(getActivity(),
-                R.layout.activity_artical_list, articalList);     //关联数据和子布局
-        lvArtical.setAdapter(articalAdapter);          //绑定数据和适配器
-
-        lvArtical.setOnItemClickListener(new AdapterView.OnItemClickListener() { //点击每一行的点击事件
-
+        //开启线程
+        Thread thread = new Thread(this);
+        thread.start();
+        handler = new Handler(){
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position,
-                                    long id) {
-                Artical artical=articalList.get(position);     //获取点击的那一行
-                Log.i(TAG, "onItemClick: List"+artical.getAccountName());
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if (msg.what==7){
+                    lvArtical = getActivity().findViewById(R.id.article_listView);  //获得子布局
+                    ArticalAdapter articalAdapter = new ArticalAdapter(getActivity(),
+                            R.layout.activity_artical_list, articalList);     //关联数据和子布局
+                    lvArtical.setAdapter(articalAdapter);          //绑定数据和适配器
                 }
+            }
+        };
+
+
+
+//        lvArtical.setOnItemClickListener(new AdapterView.OnItemClickListener() { //点击每一行的点击事件
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position,
+//                                    long id) {
+//                Artical artical=articalList.get(position);     //获取点击的那一行
+//                Log.i(TAG, "onItemClick: List"+artical.getAccountName());
+//                }
+//        });
+
+    }
+
+    @Override
+    public void run() {
+
+        String bql = "select * from ArticalTable";
+        new BmobQuery<ArticalTable>().doSQLQuery(getActivity(), bql, new SQLQueryListener
+                <ArticalTable>() {
+            @Override
+            public void done(BmobQueryResult<ArticalTable> bmobQueryResult, BmobException e) {
+                if (e == null) {
+                    List<ArticalTable> list = bmobQueryResult.getResults();
+                    if (list != null && list.size() > 0) {
+                        for (int i = 0; i < list.size(); i++) {
+                            Log.i("select * from ArticalTable:", "查询成功，共" +
+                                    list.size() + "条数据;");
+                            mobilePhoneNumber = list.get(i).getMobilePhoneNumber();
+                            mobilePhoneNumbers = new String[list.size()];
+                            mobilePhoneNumbers[i] = new String(mobilePhoneNumber);
+                            prePic = list.get(i).getPrePic().getUrl();
+                            title = list.get(i).getTitle();
+                            detail = list.get(i).getContext();
+                            Log.i(TAG, "getData:mobilePhoneNumbers.length=" + mobilePhoneNumbers.length);
+                        }
+                        Log.i(TAG, "getData:mobilePhoneNumbers.length="+mobilePhoneNumbers.length);
+                        for(String s:mobilePhoneNumbers) {
+                            String bql1 = "select * from _User where mobilePhoneNumber='"+s+"'";
+                            new BmobQuery<User>().doSQLQuery(getActivity(), bql1, new SQLQueryListener<User>() {
+                                @Override
+                                public void done(BmobQueryResult<User> bmobQueryResult, BmobException e) {
+                                    if (e == null) {
+                                        List<User> list1 = bmobQueryResult.getResults();
+                                        if (list1 != null && list1.size() > 0) {
+                                            Log.i("select from _User:", "查询成功，共" +
+                                                    list1.size() + "条数据;");
+                                            for (int i = 0; i < list1.size(); i++) {
+                                                description = list1.get(i).getUserDes();
+                                                avatarImage = list1.get(i).getUserAvatar().getUrl();
+                                                username = list1.get(i).getUsername();
+//                                            Log.i(TAG, "done: " + avatarImage + username + description + prePic + title + detail);
+                                                articalList.add(new Artical(avatarImage, username, description, prePic, title, detail));
+                                            }
+                                        } else {
+                                            Log.i("smile", "查询成功，无数据返回");
+                                        }
+                                    } else {
+                                        Log.i("smile", "错误码：" + e.getErrorCode() + "，错误描述：" + e.getMessage());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
         });
+        //获取msg对象，用于返回主线程
+        Message msg =handler.obtainMessage(7);
+        msg.obj=articalList;
+        handler.sendMessage(msg);
 
     }
 
-    private void getData() {
-        int[] avatarImage = { R.drawable.a, R.drawable.b,
-                R.drawable.c, R.drawable.d,
-                R.drawable.e};
-        String[] accountName = { "accountName1", "accountName2", "accountName3",
-                "accountName4", "accountName5"};
-        String[] description={ "description1", "description2", "description3",
-                "description4", "description5"};
-        int[] articalPicId = { R.drawable.a, R.drawable.b,
-                R.drawable.c, R.drawable.d,
-                R.drawable.e};
-        String[] title={ "title1", "title2", "title3",
-                "title4", "title5"};
-        String[] detail={ "detail1", "detail2", "detail3",
-                "detail4", "detail5"};
 
-        for(int i=0;i<avatarImage.length;i++){         //将数据添加到集合中
-            articalList.add(new Artical(avatarImage[i],accountName[i],
-                    description[i],articalPicId[i],title[i],detail[i])); //将图片id和对应的name存储到一起
-        }
-    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         isRunning = false;
     }
+
+
 
     private void initViews() {
         viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
@@ -197,6 +276,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         viewPager.setCurrentItem(5000000); // 设置到某个位置
 
     }
+
     class MyAdapter extends PagerAdapter {
 
         @Override

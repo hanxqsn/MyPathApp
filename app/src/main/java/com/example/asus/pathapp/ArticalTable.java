@@ -1,12 +1,22 @@
 package com.example.asus.pathapp;
 
+import cn.bmob.v3.BmobObject;
 import cn.bmob.v3.datatype.BmobFile;
 
-public class ArticalTable {
+public class ArticalTable extends BmobObject {
     private BmobFile prePic;
     private String title;
     private String detail;
     private String context;
+    private String mobilePhoneNumber;
+
+    public String getMobilePhoneNumber() {
+        return mobilePhoneNumber;
+    }
+
+    public void setMobilePhoneNumber(String mobilePhoneNumber) {
+        this.mobilePhoneNumber = mobilePhoneNumber;
+    }
 
     public BmobFile getPrePic() {
         return prePic;
@@ -15,6 +25,8 @@ public class ArticalTable {
     public void setPrePic(BmobFile prePic) {
         this.prePic = prePic;
     }
+
+
 
     public String getTitle() {
         return title;

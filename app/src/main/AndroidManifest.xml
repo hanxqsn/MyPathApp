@@ -20,6 +20,7 @@
     <!-- 允许读取手机状态 用于创建BmobInstallation -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/logo"
@@ -29,15 +30,11 @@
         <activity android:name=".ShowNameActivity" />
         <activity android:name=".FrameActivity">
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
         </activity>
         <activity android:name=".ArticalListActivity" />
-        <activity android:name=".EditArticleActivity" />
+        <activity android:name=".EditArticleActivity" >
+
+        </activity>
         <activity android:name=".RegisActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -3,15 +3,25 @@ package com.example.asus.pathapp;
 import cn.bmob.v3.BmobObject;
 
 public class Artical extends BmobObject {
-    private  int avatarId;
+    private  String avatarId;
     private  String accountName;
     private  String description;
-    private  int articalPicId;
+    private  String articalPicId;
     private  String title;
     private  String detail;
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     //构造方法
-    public Artical(int avatarId, String accountName,String description,
-                   int articalPicId, String title, String detail) {
+    public Artical(String avatarId, String accountName, String description,
+                   String articalPicId, String title, String detail) {
         this.avatarId = avatarId;
         this.accountName = accountName;
         this.description = description;
@@ -20,7 +30,10 @@ public class Artical extends BmobObject {
         this.detail = detail;
     }
 
-    public void setAvatarId(int avatarId) {
+
+
+
+    public void setAvatarId(String avatarId) {
         this.avatarId = avatarId;
     }
 
@@ -32,7 +45,7 @@ public class Artical extends BmobObject {
         this.description = description;
     }
 
-    public void setArticalPicId(int articalPicId) {
+    public void setArticalPicId(String articalPicId) {
         this.articalPicId = articalPicId;
     }
 
@@ -46,7 +59,7 @@ public class Artical extends BmobObject {
 
 
 
-    public  int getAvatarId() {
+    public String getAvatarId() {
         return avatarId;
     }
 
@@ -58,7 +71,7 @@ public class Artical extends BmobObject {
         return description;
     }
 
-    public  int getArticalPicId() {
+    public  String getArticalPicId() {
         return articalPicId;
     }
 
