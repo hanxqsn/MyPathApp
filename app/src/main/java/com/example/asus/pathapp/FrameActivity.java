@@ -28,8 +28,6 @@ public class FrameActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_frame);
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
-        Intent intent=getIntent();
-        String from =intent.getStringExtra("telStr");
 
         Bmob.initialize(this, "1f251cee919fc7a00bc654ae6e566e46");
         mFragments = new Fragment[5];
@@ -37,20 +35,19 @@ public class FrameActivity extends FragmentActivity {
         mFragments[0]=fragmentManager.findFragmentById(R.id.home_fragment);
         mFragments[1]=fragmentManager.findFragmentById(R.id.community_fragment);
         mFragments[2]=fragmentManager.findFragmentById(R.id.running_fragment);
-        mFragments[3]=fragmentManager.findFragmentById(R.id.teaching_fragment);
-        mFragments[4]=fragmentManager.findFragmentById(R.id.setting_fragment);
+//        mFragments[3]=fragmentManager.findFragmentById(R.id.teaching_fragment);
+//        mFragments[4]=fragmentManager.findFragmentById(R.id.setting_fragment);
 
 
         fragmentTransaction = fragmentManager.beginTransaction().
-                hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2])
-                .hide(mFragments[3]).hide(mFragments[4]);
+                hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]);
         fragmentTransaction.show(mFragments[0]).commit();
 
         rbHome=findViewById(R.id.homeButton);
         rbCommunity=findViewById(R.id.communityButton);
         rbRunning=findViewById(R.id.runningButton);
-        rbTeaching=findViewById(R.id.teachingButton);
-        rbSetting=findViewById(R.id.settingButton);
+//        rbTeaching=findViewById(R.id.teachingButton);
+//        rbSetting=findViewById(R.id.settingButton);
 
 
         rbHome.setBackgroundResource(R.drawable.shape3);
@@ -61,13 +58,12 @@ public class FrameActivity extends FragmentActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 Log.i(TAG, "onCheckedChanged: radioGroup,checkedId=" + checkedId);
                 fragmentTransaction = fragmentManager.beginTransaction().
-                        hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]).
-                        hide(mFragments[3]).hide(mFragments[4]);
+                        hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]);
                 rbHome.setBackgroundResource(R.drawable.shape2);
                 rbCommunity.setBackgroundResource(R.drawable.shape2);
                 rbRunning.setBackgroundResource(R.drawable.shape2);
-                rbTeaching.setBackgroundResource(R.drawable.shape2);
-                rbSetting.setBackgroundResource(R.drawable.shape2);
+//                rbTeaching.setBackgroundResource(R.drawable.shape2);
+//                rbSetting.setBackgroundResource(R.drawable.shape2);
 
 
                 switch (checkedId){
@@ -84,14 +80,14 @@ public class FrameActivity extends FragmentActivity {
                         fragmentTransaction.show(mFragments[2]).commit();
                         rbRunning.setBackgroundResource(R.drawable.shape3);
                         break;
-                    case R.id.teachingButton:
-                        fragmentTransaction.show(mFragments[3]).commit();
-                        rbTeaching.setBackgroundResource(R.drawable.shape3);
-                        break;
-                    case R.id.settingButton:
-                        fragmentTransaction.show(mFragments[4]).commit();
-                        rbSetting.setBackgroundResource(R.drawable.shape3);
-                        break;
+//                    case R.id.teachingButton:
+//                        fragmentTransaction.show(mFragments[3]).commit();
+//                        rbTeaching.setBackgroundResource(R.drawable.shape3);
+//                        break;
+//                    case R.id.settingButton:
+//                        fragmentTransaction.show(mFragments[4]).commit();
+//                        rbSetting.setBackgroundResource(R.drawable.shape3);
+//                        break;
                     default:
                         break;
                 }

@@ -11,6 +11,10 @@ public class Artical extends BmobObject {
     private  String detail;
     private String username;
 
+    public Artical() {
+
+    }
+
     public String getUsername() {
         return username;
     }

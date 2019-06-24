@@ -58,15 +58,21 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     private int previousSelectedPosition = 0;
     boolean isRunning = false;
     private ListView lvArtical;
-    private List<Artical> articalList = new ArrayList<Artical>();//创建集合保存文章信息
+    private List<Artical> articalList = new ArrayList<>();//创建集合保存文章信息
     String description;
+    String[] descriptions;
     String avatarImage ;
+    String[] avatarImages ;
     String username;
+    String[] usernames;
     String mobilePhoneNumber;
     String[] mobilePhoneNumbers=null;
     String prePic;
+    String[] prePics;
     String title ;
+    String[] titles ;
     String detail;
+    String[] details;
     private Handler handler;
 
 
@@ -91,6 +97,109 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
         // Controller 控制器
         initAdapter();
+        //开启线程
+        new Thread(){
+            public void run() {
+                isRunning = true;
+
+                for (int i =0;i<2;i++){
+                    String bql1 = "select * from _User";
+                    new BmobQuery<User>().doSQLQuery(getActivity(), bql1, new SQLQueryListener<User>() {
+                        @Override
+                        public void done(BmobQueryResult<User> bmobQueryResult, BmobException e) {
+                            if (e == null) {
+                                List<User> list1 = bmobQueryResult.getResults();
+                                if (list1 != null && list1.size() > 0) {
+//                                                Log.i("select from _User", "查询成功，共" +
+//                                                        list1.size() + "条数据;");
+                                    for (int i = 0; i < list1.size(); i++) {
+                                        description = list1.get(i).getUserDes();
+                                        avatarImage = list1.get(i).getUserAvatar().getUrl();
+                                        username = list1.get(i).getUsername();
+                                        mobilePhoneNumber=list1.get(i).getMobilePhoneNumber();
+                                        Log.i(TAG, "done: ------>mobilePhoneNumber="+ mobilePhoneNumber );
+                                        final Artical at = new Artical();
+                                        at.setDescription(description);
+                                        at.setAvatarId(avatarImage);
+                                        at.setAccountName(username);
+
+                                        String bql = "select * from ArticalTable where mobilePhoneNumber='"+mobilePhoneNumber+"'";
+                                        new BmobQuery<ArticalTable>().doSQLQuery(getActivity(), bql, new SQLQueryListener
+                                                <ArticalTable>() {
+                                            @Override
+                                            public void done(BmobQueryResult<ArticalTable> bmobQueryResult, BmobException e) {
+                                                if (e == null) {
+                                                    List<ArticalTable> list = bmobQueryResult.getResults();
+                                                    if (list != null && list.size() > 0) {
+                                                        for (int j = 0; j < list.size(); j++) {
+                                                            Log.i("select * from ArticalTable:", "查询成功，共" +
+                                                                    list.size() + "条数据;where mobph="+mobilePhoneNumber);
+                                                            //                                    mobilePhoneNumber = list.get(i).getMobilePhoneNumber();
+                                                            //                                    mobilePhoneNumbers = new String[list.size()];
+                                                            //                                    mobilePhoneNumbers[i] = new String(mobilePhoneNumber);
+                                                            prePic = list.get(j).getPrePic().getUrl();
+                                                            prePics = new String[list.size()];
+                                                            prePics[j] = new String(prePic);
+                                                            title = list.get(j).getTitle();
+                                                            titles = new String[list.size()];
+                                                            titles[j] = new String(title);
+                                                            detail = list.get(j).getContext();
+                                                            details = new String[list.size()];
+                                                            details[j] = new String(detail);
+                                                            at.setArticalPicId(prePic);
+                                                            at.setDetail(detail);
+                                                            at.setTitle(title);
+
+                                                            Log.i(TAG, "done: " + avatarImage + username + description + prePic + title + detail);
+                                                            articalList.add(at);
+                                                            Log.i(TAG, "done: 这是第"+j+"个循环，长度="+articalList.size());
+                                                        }
+                                                    } else {
+                                                        Log.i("smile", "查询成功，无数据返回");
+                                                    }
+                                                } else {
+                                                    Log.i("smile", "错误码：" + e.getErrorCode() + "，错误描述：" + e.getMessage());
+                                                }
+                                            }
+
+                                        });
+                                    }
+
+                                } else {
+                                    Log.i("smile", "查询成功，无数据返回");
+                                }
+                            } else {
+                                Log.i("smile", "错误码：" + e.getErrorCode() + "，错误描述：" + e.getMessage());
+                            }
+                        }
+                    });
+                }
+                //获取msg对象，用于返回主线程
+                Message msg =handler.obtainMessage(8);
+                msg.obj=articalList;
+                handler.sendMessage(msg);
+                Log.i(TAG, "handleMessage: 已发送");
+                }
+
+        }.start();
+
+
+        handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if (msg.what==8){
+                    Log.i(TAG, "handleMessage:已返回"+articalList.size());
+                    lvArtical = getActivity().findViewById(R.id.article_listView);  //获得子布局
+                    List<Artical> articalList2= (List<Artical>) msg.obj;
+                    ArticalAdapter articalAdapter = new ArticalAdapter(getActivity(),
+                            R.layout.activity_artical_list, articalList2);     //关联数据和子布局
+                    lvArtical.setAdapter(articalAdapter);          //绑定数据和适配器
+                    Log.i(TAG, "handleMessage: 绑定数据和适配器");
+                }
+            }
+        };
+
 
         // 开启轮播
         new Thread() {
@@ -114,25 +223,6 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
                 }
             }
         }.start();
-
-        //开启线程
-        Thread thread = new Thread(this);
-        thread.start();
-        handler = new Handler(){
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                if (msg.what==7){
-                    lvArtical = getActivity().findViewById(R.id.article_listView);  //获得子布局
-                    ArticalAdapter articalAdapter = new ArticalAdapter(getActivity(),
-                            R.layout.activity_artical_list, articalList);     //关联数据和子布局
-                    lvArtical.setAdapter(articalAdapter);          //绑定数据和适配器
-                }
-            }
-        };
-
-
-
 //        lvArtical.setOnItemClickListener(new AdapterView.OnItemClickListener() { //点击每一行的点击事件
 //
 //            @Override
@@ -147,65 +237,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void run() {
-
-        String bql = "select * from ArticalTable";
-        new BmobQuery<ArticalTable>().doSQLQuery(getActivity(), bql, new SQLQueryListener
-                <ArticalTable>() {
-            @Override
-            public void done(BmobQueryResult<ArticalTable> bmobQueryResult, BmobException e) {
-                if (e == null) {
-                    List<ArticalTable> list = bmobQueryResult.getResults();
-                    if (list != null && list.size() > 0) {
-                        for (int i = 0; i < list.size(); i++) {
-                            Log.i("select * from ArticalTable:", "查询成功，共" +
-                                    list.size() + "条数据;");
-                            mobilePhoneNumber = list.get(i).getMobilePhoneNumber();
-                            mobilePhoneNumbers = new String[list.size()];
-                            mobilePhoneNumbers[i] = new String(mobilePhoneNumber);
-                            prePic = list.get(i).getPrePic().getUrl();
-                            title = list.get(i).getTitle();
-                            detail = list.get(i).getContext();
-                            Log.i(TAG, "getData:mobilePhoneNumbers.length=" + mobilePhoneNumbers.length);
-                        }
-                        Log.i(TAG, "getData:mobilePhoneNumbers.length="+mobilePhoneNumbers.length);
-                        for(String s:mobilePhoneNumbers) {
-                            String bql1 = "select * from _User where mobilePhoneNumber='"+s+"'";
-                            new BmobQuery<User>().doSQLQuery(getActivity(), bql1, new SQLQueryListener<User>() {
-                                @Override
-                                public void done(BmobQueryResult<User> bmobQueryResult, BmobException e) {
-                                    if (e == null) {
-                                        List<User> list1 = bmobQueryResult.getResults();
-                                        if (list1 != null && list1.size() > 0) {
-                                            Log.i("select from _User:", "查询成功，共" +
-                                                    list1.size() + "条数据;");
-                                            for (int i = 0; i < list1.size(); i++) {
-                                                description = list1.get(i).getUserDes();
-                                                avatarImage = list1.get(i).getUserAvatar().getUrl();
-                                                username = list1.get(i).getUsername();
-//                                            Log.i(TAG, "done: " + avatarImage + username + description + prePic + title + detail);
-                                                articalList.add(new Artical(avatarImage, username, description, prePic, title, detail));
-                                            }
-                                        } else {
-                                            Log.i("smile", "查询成功，无数据返回");
-                                        }
-                                    } else {
-                                        Log.i("smile", "错误码：" + e.getErrorCode() + "，错误描述：" + e.getMessage());
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            }
-        });
-        //获取msg对象，用于返回主线程
-        Message msg =handler.obtainMessage(7);
-        msg.obj=articalList;
-        handler.sendMessage(msg);
-
     }
-
-
 
     @Override
     public void onDestroy() {

@@ -63,8 +63,6 @@ public class ArticalAdapter extends ArrayAdapter<Artical> {
 //        Log.i(TAG, "getView: getHttpBitmap(artical.getAvatarId())="+getHttpBitmap(artical.getAvatarId()));
         viewHolder.accountName.setText(artical.getAccountName());
         viewHolder.description.setText(artical.getDescription());
-//        String url2 =null;
-//        viewHolder.articalPicImage.setImageBitmap(getHttpBitmap(url2));
         viewHolder.articalPicImage.setImageBitmap(getHttpBitmap(artical.getArticalPicId()));
         viewHolder.title.setText(artical.getTitle());
         viewHolder.detail.setText(artical.getDetail());
@@ -103,7 +101,7 @@ public class ArticalAdapter extends ArrayAdapter<Artical> {
             HttpURLConnection conn=(HttpURLConnection)myFileURL.openConnection();
 //            Log.i(TAG, "getHttpBitmap:------conn="+conn);
             //设置超时时间为6000毫秒，conn.setConnectionTiem(0);表示没有时间限制
-            conn.setConnectTimeout(6000);
+            conn.setConnectTimeout(0);
 //            Log.i(TAG, "getHttpBitmap:-------setConnectTimeout ");
             //连接设置获得数据流
             conn.setDoInput(true);
